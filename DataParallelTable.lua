@@ -355,10 +355,12 @@ function DataParallelTable:updateGradInput(input, gradOutput)
    -- concatenate the outputs to the base GPU
    for i = 1, #self.modules do
       local gpuid = self.gpuAssignments[i]
-      -- Merge the tensors in the input nested table to the GPU with gpuid
-      -- _concatTensorRecursive(src,dst,srcGpuid,srcInd,dstGpuid,dstInd)
-      self.gradInput = self:_concatTensorRecursive(self.gradInputGpu[gpuid],
-         self.gradInput, gpuid, i, baseGpuid, baseGpuIndex, #self.modules)
+      if self.gradInputGpu[gpuid] then
+         -- Merge the tensors in the input nested table to the GPU with gpuid
+         -- _concatTensorRecursive(src,dst,srcGpuid,srcInd,dstGpuid,dstInd)
+         self.gradInput = self:_concatTensorRecursive(self.gradInputGpu[gpuid],
+            self.gradInput, gpuid, i, baseGpuid, baseGpuIndex, #self.modules)
+      end
    end
 
    cutorch.synchronize()
